@@ -46,7 +46,7 @@ mean = np.mean(summarydata)
 for i in range(len(n)):
     data[i] = (data[i] - mean) / stdvar
 
-mu_hat, idx2cluster, prob = Gibbs(data=data, an=an, bn=bn, c=c,
+mu_hat, idx2cluster = Gibbs(data=data, an=an, bn=bn, c=c,
                                   dp=0.005, niterate=niterate, draw=True,
                                   title=title)
 
@@ -78,12 +78,10 @@ print("估计均值: ", sorted([float("{:.4f}".format(i)) for i in stat_mu]))
 # print("估计均值: ", sorted([float("{:.4f}".format(i)) for i in mu_hat]))
 
 summaryidx = []
-summaryprob = []
 dataIdx = []
 clusterIdx = []
 for i in range(len(n)):
     summaryidx.extend([i + 1 for i in range(len(data[i]))])
-    summaryprob.extend(prob[i])
     dataIdx.extend([i] * len(data[i]))
     clusterIdx.extend(idx2cluster[i])
 

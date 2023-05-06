@@ -1,7 +1,6 @@
 import numpy as np
 from math import gamma
 from bisect import bisect_left
-from typing import List
 
 clusterCount = 0
 alpha0, beta0, beta0_alpha0 = 1, 0.5, 0.5
@@ -61,7 +60,7 @@ def prob_newcluster(x: float) -> float:
     return temp1 * temp2 / (betan ** alphan)
 
 
-def relink(data: np.ndarray, idx2cluster: List[int]) -> None:
+def relink(data: np.ndarray, idx2cluster: list[int]) -> None:
     global clusterCount
     to_update = set[int]()
     for i in range(len(data)):
@@ -110,8 +109,8 @@ def relink(data: np.ndarray, idx2cluster: List[int]) -> None:
 
 
 # 支持cluster方差不共享
-def Gibbs(data: List[np.ndarray], mu_0=0.0, k=0.005, alpha_0=2, beta_0=0.0063, niterate=100,
-          dp_1: float = 2.0, dp_2: float = 2.0) -> (List[List[int]], int):
+def Gibbs(data: list[np.ndarray], mu_0=0.0, k=0.005, alpha_0=2, beta_0=0.0063, niterate=100,
+          dp_1: float = 2.0, dp_2: float = 2.0) -> tuple[list[list[int]], int]:
     global clusterCount, mu0, alpha0, beta0, gamma0, beta0_alpha0, dp1, dp2, samplesize
     mu0 = mu_0
     alpha0, beta0, Cluster.k = alpha_0, beta_0, max(k, 0.001)

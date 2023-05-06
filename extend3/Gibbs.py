@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from math import gamma
 from bisect import bisect_left
-from typing import List
 
 clusterCount = 0
 alpha0, beta0, beta0_alpha0 = 1, 0.5, 0.5
@@ -89,7 +88,7 @@ def lnprob_newcluster(cumsum: float, squaresum: float, size: int) -> float:
     return temp1 - alphan * math.log(betan) + temp2
 
 
-def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: List[int], dp: float) -> None:
+def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: list[int], dp: float) -> None:
     global clusterCount
     length = len(data)
     lnw = np.log(w)
@@ -175,10 +174,10 @@ def GibbsW(w: np.ndarray, c: np.ndarray, an: np.ndarray, bn: np.ndarray) -> None
 
 
 # 支持cluster方差不共享
-def Gibbs(data: List[np.ndarray], an: List[np.ndarray], bn: List[np.ndarray],
+def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
           mu_0=0.0, k=0.005, alpha_0=2, beta_0=0.0063, niterate=100, dp: float = 2.0,
-          c: List[np.ndarray] = None, draw: bool = False, title: str = "", path: str = None) \
-            -> (List[Info], List[List[int]]):
+          c: list[np.ndarray] = None, draw: bool = False, title: str = "", path: str = None) \
+            -> tuple[list[Info], list[list[int]]]:
     global clusterCount, mu0, alpha0, beta0, gamma0, beta0_alpha0, samplesize, p, lnp
     mu0 = mu_0
     alpha0, beta0, Cluster.k = alpha_0, beta_0, max(k, 0.001)

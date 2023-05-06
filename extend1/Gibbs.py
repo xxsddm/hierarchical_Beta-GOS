@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from bisect import bisect_left
 from scipy.stats import invgamma
-from typing import List
 
 clusterCount = 0
 mu0 = sigma0 = 1
@@ -67,7 +66,7 @@ def lnprobnew(cumsum: float, count: int) -> float:
     return math.log(temp1) + temp2 / temp3
 
 
-def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: List[int],
+def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: list[int],
            size: np.ndarray, cumsum: np.ndarray, squaresum: np.ndarray, dp: float) -> None:
     global clusterCount, totalblock
     global lazy_size, lazy_cumsum, lazy_squaresum
@@ -197,10 +196,10 @@ def GibbsW(w: np.ndarray, c: np.ndarray, an: np.ndarray, bn: np.ndarray) -> None
 
 
 # cluster共享方差
-def Gibbs(data: List[np.ndarray], an: List[np.ndarray], bn: List[np.ndarray],
+def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
           mu_0=0, sigma_0=0.5, alpha0=2.004, beta0=0.0063, niterate=100, dp: float = 2.0,
-          c: List[np.ndarray] = None, draw: bool = False, title: str = "", path: str = None) \
-        -> tuple[List[float], List[List[int]]]:
+          c: list[np.ndarray] = None, draw: bool = False, title: str = "", path: str = None) \
+        -> tuple[list[float], list[list[int]]]:
     global clusterCount, mu0, sigma0, var0, sigma, var, totalblock, samplesize
     global lazy_size, lazy_cumsum, lazy_squaresum
     mu0, sigma0 = mu_0, sigma_0

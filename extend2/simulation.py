@@ -60,13 +60,6 @@ mean = np.mean(summarydata)
 for i in range(len(n)):
     data[i] = (data[i] - mean) / stdvar
 
-
-# temp_summarydata = (summarydata - mean) / stdvar
-# plt.figure(figsize=(16, 8))
-# sns.scatterplot(x=[i for i in range(len(temp_summarydata))], y=temp_summarydata)
-# plt.savefig("C:\\Users\\GYT\\Desktop\\simulation data preview.png")
-# plt.close()
-
 info_hat, idx2cluster = Gibbs(data=data, an=an, bn=bn, c=c, k=0.005, beta_0=0.0001,
                               dp=0.05, niterate=niterate, draw=True,
                               title=title)
