@@ -1,4 +1,5 @@
-_*
+_pycache_
+__pycache__
 __init__.py
 del
 *.txt
