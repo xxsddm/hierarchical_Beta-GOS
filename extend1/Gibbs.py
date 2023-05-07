@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 from bisect import bisect_left
 from scipy.stats import invgamma
 
@@ -269,9 +268,6 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
     print("DIC: {:.4f}".format(dic))
     if draw:
         plt.figure(figsize=(15, 8))
-        plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
         if title:
             plt.title("分配过程(" + title + ") DIC={:.4f}".format(dic))
         else:
@@ -279,5 +275,8 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
         plt.plot([i + 1 for i in range(niterate)], num_cluster, 'bo-', markersize=2)
         plt.xlabel("分配轮数")
         plt.ylabel("剩余类别数")
-        plt.savefig(path)
+        if path:
+            plt.savefig(path)
+        else:
+            plt.savefig("path of n_cluster.png")
     return means[: len(clusters)], idx2cluster

@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 from bisect import bisect_left
 
 
@@ -180,7 +179,8 @@ def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: list[int
         for j in range(1, exlength):
             p[j] = math.exp(lnp[j] - maxlnp)
             p[j] += p[j - 1]
-        prev = bisect_left(p, np.random.uniform(low=0.0, high=p[exlength - 1]), hi=exlength)
+        prev = bisect_left(p, np.random.uniform(
+            low=0.0, high=p[exlength - 1]), hi=exlength)
         if prev < i:
             c[i] = prev
             j = c[i]
@@ -328,20 +328,20 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
         print("DIC: {:.4f}".format(dic))
     if draw:
         plt.figure(figsize=(15, 8))
-        plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
         if title:
-            plt.title("分配过程(" + title + ")  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic:.4f})"
+            plt.title("allocation(" + title + ")  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic:.4f})"
                       .format(dp=dp, k=Cluster.k, alpha_0=alpha_0, beta_0=beta_0, dic=dic))
         else:
-            plt.title("分配过程  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic})"
+            plt.title("allocation  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic})"
                       .format(dp=dp, k=Cluster.k, alpha_0=alpha_0, beta_0=beta_0, dic=dic))
         plt.plot([i + 1 for i in range(niterate)],
                  num_cluster, 'bo-', markersize=2)
-        plt.xlabel("迭代次数")
-        plt.ylabel("剩余类别数")
-        plt.savefig(path)
+        plt.xlabel("iteration")
+        plt.ylabel("n_cluster")
+        if path:
+            plt.savefig(path)
+        else:
+            plt.savefig("path of n_cluster.png")
     # cluster序号按均值排序和标号
     # 重新编排样本对应cluster
     info = [Info() for _ in range(len(clusters))]
@@ -367,4 +367,3 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
         for j in range(len(data[i])):
             idx2cluster[i][j] = id2id[idx2cluster[i][j]]
     return info, idx2cluster
-

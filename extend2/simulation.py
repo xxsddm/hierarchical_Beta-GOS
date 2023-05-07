@@ -7,7 +7,7 @@ from Gibbs import Gibbs, Info
 np.random.seed(4399)
 
 n = [200, 175, 200, 150, 225, 250]
-niterate = 1000
+niterate = 100
 total = 15
 ncluster = [min(np.random.poisson(5) + 3, total - 1) for i in range(len(n))]
 mu_container = []
@@ -111,11 +111,11 @@ for i in range(len(n)):
 
 plt.figure(figsize=(16, 8))
 df = pd.DataFrame([[summaryidx[i], summarydata[i], summarydataidx[i] + 1, summaryclusteridx[i] + 1]
-                   for i in range(len(summarydata))], columns=["序号", "y", "数据源", "估计类别"])
-fig = sns.scatterplot(data=df, x="序号", y="y", style="数据源", hue="估计类别",
+                   for i in range(len(summarydata))], columns=["index", "y", "dataset", "cluster"])
+fig = sns.scatterplot(data=df, x="index", y="y", style="dataset", hue="cluster",
                       palette=sns.color_palette("tab20", len(info_hat)))
 fig.legend(loc="best", fontsize="small", handlelength=0.5)
-plt.savefig()
+plt.savefig("data/summary.png")
 plt.close()
 
 plt.figure(figsize=(20, 16))
@@ -123,14 +123,15 @@ for i in range(len(n)):
     plt.subplot(321 + i)
     plt.title("dataset {:d}".format(i + 1))
     temp = pd.DataFrame([[j + 1, data[i][j], idx2cluster[i][j] + 1] for j in range(len(data[i]))],
-                        columns=["序号", "y", "估计类别"])
-    sns.scatterplot(data=temp, x="序号", y="y", hue="估计类别", legend=False,
+                        columns=["index", "y", "cluster"])
+    sns.scatterplot(data=temp, x="index", y="y", hue="cluster", legend=False,
                     palette=sns.color_palette("tab20", len(set(idx2cluster[i]))))
-plt.savefig()
+plt.savefig("data/subplot.png")
 plt.close()
 
-with pd.ExcelWriter("data\\simulation.xlsx") as writer:
+with pd.ExcelWriter("data/simulation.xlsx") as writer:
     for i in range(len(n)):
         subdata = pd.DataFrame([[data[i][j], idx2cluster[i][j] + 1] for j in range(len(data[i]))],
                                columns=["x", "cluster"])
-        subdata.to_excel(writer, sheet_name="dataset{:d}".format(i + 1), index=False)
+        subdata.to_excel(
+            writer, sheet_name="dataset{:d}".format(i + 1), index=False)

@@ -84,7 +84,8 @@ for i in range(len(info_hat)):
         stat_var[i] = 0.0
     else:
         stat_var[i] /= stat_counter[i] - 1
-        stat_var[i] -= stat_mu[i] / stat_counter[i] * stat_mu[i] / (stat_counter[i] - 1)
+        stat_var[i] -= stat_mu[i] / stat_counter[i] * \
+            stat_mu[i] / (stat_counter[i] - 1)
     stat_mu[i] /= stat_counter[i]
 
 print("实际均值: ", [float("{:.4f}".format(real_info[i].mu))
@@ -110,11 +111,11 @@ for i in range(len(n)):
 
 plt.figure(figsize=(16, 8))
 df = pd.DataFrame([[summaryidx[i], summarydata[i], summarydataidx[i] + 1, summaryclusteridx[i] + 1]
-                   for i in range(len(summarydata))], columns=["序号", "y", "数据源", "估计类别"])
-fig = sns.scatterplot(data=df, x="序号", y="y", style="数据源", hue="估计类别",
+                   for i in range(len(summarydata))], columns=["index", "y", "dataset", "cluster"])
+fig = sns.scatterplot(data=df, x="index", y="y", style="dataset", hue="cluster",
                       palette=sns.color_palette("tab20", len(info_hat)))
 fig.legend(loc="best", fontsize="small", handlelength=0.5)
-plt.savefig()
+plt.savefig("data/summary.png")
 plt.close()
 
 plt.figure(figsize=(20, 16))
@@ -122,8 +123,8 @@ for i in range(len(n)):
     plt.subplot(321 + i)
     plt.title("dataset {:d}".format(i + 1))
     temp = pd.DataFrame([[j + 1, data[i][j], idx2cluster[i][j] + 1] for j in range(len(data[i]))],
-                        columns=["序号", "y", "估计类别"])
-    sns.scatterplot(data=temp, x="序号", y="y", hue="估计类别", legend=False,
+                        columns=["index", "y", "cluster"])
+    sns.scatterplot(data=temp, x="index", y="y", hue="cluster", legend=False,
                     palette=sns.color_palette("tab20", len(set(idx2cluster[i]))))
-plt.savefig()
+plt.savefig("data/subplot.png")
 plt.close()

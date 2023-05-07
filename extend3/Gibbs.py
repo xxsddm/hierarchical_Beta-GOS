@@ -26,10 +26,13 @@ class Cluster:
     k = 1
 
     def __init__(self, cumsum: float, squaresum: float, size: int = 1) -> None:
-        self.inv_var = np.random.gamma(shape=alpha0, scale=1 / beta0)  # prior: E=alpha/beta; var=alpha/(beta * beta)
+        # prior: E=alpha/beta; var=alpha/(beta * beta)
+        self.inv_var = np.random.gamma(shape=alpha0, scale=1 / beta0)
         # self.var = 1 / self.inv_var
         self.inv_sigma = np.sqrt(self.inv_var)
-        self.mu = np.random.normal(mu0, 1 / self.inv_sigma / np.sqrt(Cluster.k))  # prior: E=mu; var=k * self.var
+        # prior: E=mu; var=k * self.var
+        self.mu = np.random.normal(
+            mu0, 1 / self.inv_sigma / np.sqrt(Cluster.k))
         self.size = size
         self.cumsum = cumsum
         self.squaresum = squaresum
@@ -58,12 +61,15 @@ class Cluster:
 
     def update(self) -> None:
         mun = (Cluster.k * mu0 + self.cumsum) / (Cluster.k + self.size)
-        betan = beta0 + (self.squaresum - self.cumsum * self.cumsum / self.size) / 2
+        betan = beta0 + (self.squaresum - self.cumsum *
+                         self.cumsum / self.size) / 2
         betan += Cluster.k * (self.cumsum * self.cumsum / self.size + mu0 * mu0 * self.size - 2 * mu0 * self.cumsum) \
             / (2 * (Cluster.k + self.size))
-        self.inv_var = np.random.gamma(shape=alpha0 + self.size / 2, scale=1 / betan)
+        self.inv_var = np.random.gamma(
+            shape=alpha0 + self.size / 2, scale=1 / betan)
         self.inv_sigma = math.sqrt(self.inv_var)
-        self.mu = np.random.normal(mun, 1 / self.inv_sigma / math.sqrt(Cluster.k + self.size))
+        self.mu = np.random.normal(
+            mun, 1 / self.inv_sigma / math.sqrt(Cluster.k + self.size))
 
 
 clusters = dict[int, Cluster]()
@@ -73,8 +79,10 @@ def prob_newcluster(cumsum: float, squaresum: float, size: int) -> float:
     alphan = alpha0 + size / 2
     kn = Cluster.k + size
     betan = beta0 + (squaresum - cumsum * cumsum / size) / 2
-    betan += Cluster.k * (cumsum * cumsum / size + mu0 * mu0 * size - 2 * mu0 * cumsum) / (2 * kn)
-    temp = gamma(alphan) * beta0_alpha0 / gamma0 * math.pow(Cluster.k / kn, 0.5)
+    betan += Cluster.k * (cumsum * cumsum / size + mu0 *
+                          mu0 * size - 2 * mu0 * cumsum) / (2 * kn)
+    temp = gamma(alphan) * beta0_alpha0 / gamma0 * \
+        math.pow(Cluster.k / kn, 0.5)
     return temp / math.pow(betan, alphan)
 
 
@@ -82,7 +90,8 @@ def lnprob_newcluster(cumsum: float, squaresum: float, size: int) -> float:
     alphan = alpha0 + size / 2
     kn = Cluster.k + size
     betan = beta0 + (squaresum - cumsum * cumsum / size) / 2
-    betan += Cluster.k * (cumsum * cumsum / size + mu0 * mu0 * size - 2 * mu0 * cumsum) / (2 * kn)
+    betan += Cluster.k * (cumsum * cumsum / size + mu0 *
+                          mu0 * size - 2 * mu0 * cumsum) / (2 * kn)
     temp1 = math.log(gamma(alphan) * beta0_alpha0 / gamma0)
     temp2 = math.log(Cluster.k / kn) / 2
     return temp1 - alphan * math.log(betan) + temp2
@@ -121,16 +130,19 @@ def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: list[int
         #     print("检验权重和为1: ", checksum1)
         for prevnode in range(i):
             lnp[prevnode] = lnweight[prevnode] + \
-                clusters[idx2cluster[prevnode]].lnprob(cumsum[i], squaresum[i], size[i])
+                clusters[idx2cluster[prevnode]].lnprob(
+                    cumsum[i], squaresum[i], size[i])
             lnweight[prevnode] += lnw[i]
         k = 0
         idx2key = dict[int, int]()
         for clusterIdx in clusters:
             cluster = clusters[clusterIdx]
-            lnp[i + k] = math.log(cluster.size / base) + cumlnw + cluster.lnprob(cumsum[i], squaresum[i], size[i])
+            lnp[i + k] = math.log(cluster.size / base) + cumlnw + \
+                cluster.lnprob(cumsum[i], squaresum[i], size[i])
             idx2key[i + k] = clusterIdx
             k += 1
-        lnp[i + k] = math.log(dp / base) + cumlnw + lnprob_newcluster(cumsum[i], squaresum[i], size[i])
+        lnp[i + k] = math.log(dp / base) + cumlnw + \
+            lnprob_newcluster(cumsum[i], squaresum[i], size[i])
         maxlnp = -1e9
         for j in range(exlength):
             maxlnp = max(maxlnp, lnp[j])
@@ -138,7 +150,8 @@ def GibbsC(data: np.ndarray, w: np.ndarray, c: np.ndarray, idx2cluster: list[int
             p[j] = math.exp(lnp[j] - maxlnp)
             if j:
                 p[j] += p[j - 1]
-        prev = bisect_left(p, np.random.uniform(low=0.0, high=p[exlength - 1]), hi=exlength)
+        prev = bisect_left(p, np.random.uniform(
+            low=0.0, high=p[exlength - 1]), hi=exlength)
         cumlnw += lnw[i]
         base += 1
         if prev < i:
@@ -177,7 +190,7 @@ def GibbsW(w: np.ndarray, c: np.ndarray, an: np.ndarray, bn: np.ndarray) -> None
 def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
           mu_0=0.0, k=0.005, alpha_0=2, beta_0=0.0063, niterate=100, dp: float = 2.0,
           c: list[np.ndarray] = None, draw: bool = False, title: str = "", path: str = None) \
-            -> tuple[list[Info], list[list[int]]]:
+        -> tuple[list[Info], list[list[int]]]:
     global clusterCount, mu0, alpha0, beta0, gamma0, beta0_alpha0, samplesize, p, lnp
     mu0 = mu_0
     alpha0, beta0, Cluster.k = alpha_0, beta_0, max(k, 0.001)
@@ -186,9 +199,11 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
     w = [np.random.beta(an[i], bn[i]) for i in range(ndata)]
     num_cluster = []
     if c is None:
-        c = [np.array([j for j in range(len(data[i]))], dtype=np.int32) for i in range(ndata)]
+        c = [np.array([j for j in range(len(data[i]))], dtype=np.int32)
+             for i in range(ndata)]
     elif c[0].__class__ == list:
-        c = [np.array([j for j in range(len(data[i]))], dtype=np.int32) for i in range(ndata)]
+        c = [np.array([j for j in range(len(data[i]))], dtype=np.int32)
+             for i in range(ndata)]
         # c = [np.array(c[i], dtype=np.int32) for i in range(ndata)]
     idx2cluster = [[-1] * len(data[i]) for i in range(ndata)]
     samplesize = 0
@@ -198,11 +213,13 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
         samplesize += len(data[i])
         for j in range(len(data[i])):
             idx2cluster[i][j] = clusterCount
-            clusters[clusterCount] = Cluster(cumsum=data[i][j], squaresum=data[i][j] * data[i][j])
+            clusters[clusterCount] = Cluster(
+                cumsum=data[i][j], squaresum=data[i][j] * data[i][j])
             clusters[clusterCount].update()
             clusterCount += 1
     mu_sum = [np.zeros(len(data[i]), dtype=np.float) for i in range(len(data))]
-    inv_var_sum = [np.zeros(len(data[i]), dtype=np.float) for i in range(len(data))]
+    inv_var_sum = [np.zeros(len(data[i]), dtype=np.float)
+                   for i in range(len(data))]
     p = np.zeros(samplesize + 5, dtype=np.float64)
     lnp = np.zeros(samplesize + 5, dtype=np.float64)
     for i in range(niterate):
@@ -218,7 +235,8 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
                     cluster = clusters[idx2cluster[j][k]]
                     temp1 = cluster.mu
                     temp2 = cluster.inv_var
-                    llf += temp2 / 2 * ((data[j][k] - temp1) ** 2) + np.log(temp2) / 2
+                    llf += temp2 / 2 * \
+                        ((data[j][k] - temp1) ** 2) + np.log(temp2) / 2
                     mu_sum[j][k] += temp1
                     inv_var_sum[j][k] += temp2
     nrest = niterate - ndrop
@@ -240,19 +258,20 @@ def Gibbs(data: list[np.ndarray], an: list[np.ndarray], bn: list[np.ndarray],
         print("DIC: {:.4f}".format(dic))
     if draw:
         plt.figure(figsize=(15, 8))
-        plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
         if title:
-            plt.title("分配过程(" + title + ")  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic:.2f})"
+            plt.title("allocation(" + title + ")  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic:.4f})"
                       .format(dp=dp, k=Cluster.k, alpha_0=alpha_0, beta_0=beta_0, dic=dic))
         else:
-            plt.title("分配过程  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic})"
+            plt.title("allocation  (dp={dp}, k={k}, alpha0={alpha_0}, beta0={beta_0}, DIC={dic})"
                       .format(dp=dp, k=Cluster.k, alpha_0=alpha_0, beta_0=beta_0, dic=dic))
-        plt.plot([i + 1 for i in range(niterate)], num_cluster, 'bo-', markersize=2)
-        plt.xlabel("迭代次数")
-        plt.ylabel("剩余类别数")
-        plt.savefig(path)
+        plt.plot([i + 1 for i in range(niterate)],
+                 num_cluster, 'bo-', markersize=2)
+        plt.xlabel("iteration")
+        plt.ylabel("n_cluster")
+        if path:
+            plt.savefig(path)
+        else:
+            plt.savefig("path of n_cluster.png")
     # cluster序号按均值排序和标号
     # 重新编排样本对应cluster
     info = [Info() for _ in range(len(clusters))]

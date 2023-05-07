@@ -29,7 +29,8 @@ for i in range(len(n)):
     while length < n[i]:
         subLen = 0
         while subLen == 0:
-            subLen = min(np.random.poisson(np.random.exponential(4)), n[i] - length)
+            subLen = min(np.random.poisson(
+                np.random.exponential(4)), n[i] - length)
         length += subLen
         idx = np.random.choice([_ for _ in range(ncluster[i])])
         data[i].append(np.random.normal(mu[i][idx], 0.2, subLen))
@@ -38,7 +39,8 @@ data = [np.concatenate(data[i]) for i in range(len(n))]
 
 an = [np.array([3 for _ in range(n[i])]) for i in range(len(n))]
 bn = [np.array([1 for _ in range(n[i])]) for i in range(len(n))]
-c = [np.array([j for j in range(len(data[i]))], dtype=np.int32) for i in range(len(n))]
+c = [np.array([j for j in range(len(data[i]))], dtype=np.int32)
+     for i in range(len(n))]
 
 summarydata = np.concatenate(data)
 stdvar = np.std(summarydata)
@@ -47,8 +49,8 @@ for i in range(len(n)):
     data[i] = (data[i] - mean) / stdvar
 
 mu_hat, idx2cluster = Gibbs(data=data, an=an, bn=bn, c=c,
-                                  dp=0.005, niterate=niterate, draw=True,
-                                  title=title)
+                            dp=0.005, niterate=niterate, draw=True,
+                            title=title)
 
 mu_hat = mu_hat * stdvar + mean
 stat_counter = [0] * len(mu_hat)
@@ -90,7 +92,7 @@ sns.scatterplot(x=summaryidx, y=summarydata,
                 style=dataIdx, hue=clusterIdx,
                 legend=False,
                 palette=sns.color_palette("colorblind", len(mu_hat)))
-plt.xlabel("样本索引")
-plt.ylabel("样本值")
+plt.xlabel("index")
+plt.ylabel("x")
 plt.savefig()
 plt.show()
